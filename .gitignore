@@ -1,0 +1,25 @@
+# executabile
+*.exe
+*.out
+*.o
+sim_c
+sim_fpga
+golden_vector_export
+
+# fisiere generate
+*.vcd
+*.csv
+*.hex
+*.txt
+
+# output folders
+software/output/*
+fpga/output/*
+
+# pastreaza folderele output goale
+!software/output/.gitkeep
+!fpga/output/.gitkeep
+
+# sistem
+.DS_Store
+Thumbs.db
