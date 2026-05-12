@@ -1,37 +1,6 @@
 `timescale 1ns/1ps
 `include "params.svh"
 
-/*
- * crypto_core.sv
- *
- * Modul de simulare mai realist pentru fluxul criptografic RLWE.
- *
- * Parametri:
- *   N = 256
- *   Q = 7681
- *
- * Flux simulat:
- *
- *   keygen:
- *      b = a*s
- *
- *   encrypt:
- *      c1 = a*r
- *      c2 = b*r + m
- *
- *   decrypt:
- *      t = c2 - c1*s
- *      recovered_bit = threshold(t)
- *
- * Observatie:
- *   Acest modul simuleaza matematic fluxul RLWE cu polinoame de 256 coeficienti.
- *   Pentru a garanta recuperarea corecta in aceasta etapa, zgomotele e, e1, e2
- *   sunt setate implicit la 0.
- *
- *   Pentru implementarea reala pe FPGA, inmultirea polinomiala O(N^2) din acest
- *   modul trebuie inlocuita cu:
- *      NTT -> inmultire punct cu punct -> INTT
- */
 
 module crypto_core #(
     parameter integer N = `N,
@@ -130,13 +99,6 @@ module crypto_core #(
                 IDLE: begin
                     if (start) begin
 
-                        /*
-                         * 1. Initializare polinoame demonstrative.
-                         *
-                         * a = polinom public determinist
-                         * s = cheie secreta rara
-                         * r = polinom efemer rar
-                         */
                         for (i = 0; i < N; i = i + 1) begin
                             a[i] = mod_q(17*i + 5);
 
@@ -160,8 +122,7 @@ module crypto_core #(
                         end
 
                         /*
-                         * 2. Keygen:
-                         *      b = a*s
+                         *  Keygen
                          */
                         for (i = 0; i < N; i = i + 1) begin
                             acc = 0;
@@ -179,8 +140,7 @@ module crypto_core #(
                         end
 
                         /*
-                         * 3. Encrypt:
-                         *      c1 = a*r
+                          Encrypt
                          */
                         for (i = 0; i < N; i = i + 1) begin
                             acc = 0;
@@ -198,8 +158,7 @@ module crypto_core #(
                         end
 
                         /*
-                         * 4. Encrypt:
-                         *      c2 = b*r + m
+                         Encrypt
                          */
                         for (i = 0; i < N; i = i + 1) begin
                             acc = 0;
@@ -217,8 +176,7 @@ module crypto_core #(
                         end
 
                         /*
-                         * 5. Decrypt:
-                         *      t = c2 - c1*s
+                         Decrypt
                          */
                         for (i = 0; i < N; i = i + 1) begin
                             acc = 0;
@@ -237,7 +195,7 @@ module crypto_core #(
                         end
 
                         /*
-                         * 6. Preview pentru terminal/waveform.
+                         Preview waveform
                          */
                         for (i = 0; i < 8; i = i + 1) begin
                             c1_preview[i] = c1[i];
@@ -245,7 +203,7 @@ module crypto_core #(
                         end
 
                         /*
-                         * 7. Impachetare inapoi in bytes.
+                         inapoi in bytes
                          */
                         for (i = 0; i < N/8; i = i + 1) begin
                             recovered_bytes[i] = 8'd0;

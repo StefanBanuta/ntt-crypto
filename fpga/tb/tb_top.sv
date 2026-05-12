@@ -1,19 +1,5 @@
 `timescale 1ns/1ps
 
-/*
- * tb_top.sv
- *
- * Testbench extins:
- *   1. trimite cadre UART-like;
- *   2. verifica recuperarea payload-ului;
- *   3. verifica si criptarea, comparand c1/c2 generate de crypto_core
- *      cu valori golden calculate separat in testbench.
- *
- * Pentru compatibilitate si lizibilitate, verificam primii 8 coeficienti:
- *   c1_preview[0..7]
- *   c2_preview[0..7]
- */
-
 module tb_top;
 
     localparam integer N = 256;
@@ -42,9 +28,6 @@ module tb_top;
     integer j;
     integer k;
 
-    /*
-     * Golden arrays calculate independent in testbench.
-     */
     reg [15:0] golden_m  [0:N-1];
     reg [15:0] golden_a  [0:N-1];
     reg [15:0] golden_s  [0:N-1];
@@ -131,12 +114,6 @@ module tb_top;
     task compute_golden_crypto;
         integer acc;
         begin
-            /*
-             * Trebuie sa fie identic cu initializarea din crypto_core.sv:
-             *   a[i] = (17*i + 5) mod Q
-             *   s[i] = 1 daca i % 64 == 0, altfel 0
-             *   r[i] = 1 daca i % 80 == 0, altfel 0
-             */
             for (i = 0; i < N; i = i + 1) begin
                 golden_a[i] = mod_q(17*i + 5);
 
@@ -156,11 +133,7 @@ module tb_top;
                 golden_c1[i] = 16'd0;
                 golden_c2[i] = 16'd0;
             end
-
-            /*
-             * Golden keygen:
-             *   b = a*s
-             */
+			
             for (i = 0; i < N; i = i + 1) begin
                 acc = 0;
 
@@ -176,10 +149,6 @@ module tb_top;
                 golden_b[i] = mod_q(acc);
             end
 
-            /*
-             * Golden encrypt:
-             *   c1 = a*r
-             */
             for (i = 0; i < N; i = i + 1) begin
                 acc = 0;
 
@@ -195,10 +164,6 @@ module tb_top;
                 golden_c1[i] = mod_q(acc);
             end
 
-            /*
-             * Golden encrypt:
-             *   c2 = b*r + m
-             */
             for (i = 0; i < N; i = i + 1) begin
                 acc = 0;
 
